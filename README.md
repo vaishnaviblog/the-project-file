@@ -1,34 +1,39 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import zscore
 
-# The Project File
+# Load time-series data
+# Use absolute path for CSV
+csv_path = r'c:\Users\Nirmal Shinde\Desktop\vaishnavi\sales_data.csv'
+df = pd.read_csv(csv_path, parse_dates=['Date'])
+df.set_index('Date', inplace=True)
 
+# Resample weekly & calculate total sales
+weekly_sales = df['Sales'].resample('W').sum()
 
-## Project: Sales Data Analysis & Visualization
+# Line Plot: Weekly trend
+plt.figure(figsize=(10, 5))
+sns.lineplot(x=weekly_sales.index, y=weekly_sales.values, marker='o')
+plt.title('Weekly Sales Trend')
+plt.xlabel('Week')
+plt.ylabel('Total Sales')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
 
-This project demonstrates time-series analysis and visualization of sales data using Python. The main script (`newproject.py`) loads sales data, resamples it to weekly totals, and visualizes trends using line plots and rolling averages. It also detects anomalies in sales using z-score statistics and highlights them on the plots. Additionally, the code summarizes sales by year and quarter, providing insights into seasonal and annual performance.
+# Add rolling average (4 weeks)
+plt.figure(figsize=(10, 5))
+weekly_sales.plot(label='Actual', alpha=0.5)
+weekly_sales.rolling(4).mean().plot(label='4-Week Avg', linewidth=2)
+plt.legend()
+plt.title('Sales with Rolling Average')
+plt.xlabel('Week')
+plt.ylabel('Total Sales')
+plt.tight_layout()
+plt.show()
 
-### Key Features
-- Loads and processes time-series sales data from CSV
-- Weekly sales trend visualization
-- Rolling average for smoothing trends
-- Anomaly detection using z-score
-- Yearly and quarterly sales summaries
-
-This project is useful for understanding sales patterns, identifying unusual spikes or drops, and gaining insights into business performance over time.
-
-## Features
-- Collection of Python scripts and data files
-- Easy navigation and organization
-- Useful for learning, experimentation, and sharing code
-
-## Getting Started
-Clone or download the repository to explore the included projects. Each script is self-contained and can be run independently.
-
-## Structure
-- Python scripts for different tasks
-- Data files for analysis and practice
-- README for documentation
-
-Feel free to contribute or use the code for your own learning and development!ok
-## Usage
-
-See [`newproject.py`](../newproject.py) for the main analysis script.
+# Anomaly detection using z-score
+z_scores = zscore(weekly_sales.values)
+anomaly_threshold = 2 # change as needed
+anomalies = weekly_sales[abs(z_scores) > anomaly_threshold]
